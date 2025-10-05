@@ -13,9 +13,9 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner position="top-right" />
       <BrowserRouter>
+        <Toaster />
+        <Sonner position="top-right" />
         <div className="min-h-screen bg-background">
           <Header />
           <Routes>
