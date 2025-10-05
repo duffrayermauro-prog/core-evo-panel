@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, RefreshCw } from 'lucide-react';
 import { SessionCard } from '@/components/SessionCard';
@@ -6,10 +7,11 @@ import { QRCodeModal } from '@/components/QRCodeModal';
 import { NewSessionModal } from '@/components/NewSessionModal';
 import { Button } from '@/components/ui/button';
 import { Session } from '@/types/session';
-import { evolutionAPI } from '@/lib/api';
+import * as evolutionAPI from '@/api/evolution';
 import { toast } from 'sonner';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
@@ -20,6 +22,13 @@ export default function Dashboard() {
   const [creatingSession, setCreatingSession] = useState(false);
 
   const loadSessions = async () => {
+    // Verificar se a URL da API está configurada
+    if (!evolutionAPI.hasApiUrl()) {
+      toast.error('Configure o endpoint da API nas Configurações');
+      navigate('/settings');
+      return;
+    }
+
     try {
       setLoading(true);
       const data = await evolutionAPI.getSessions();

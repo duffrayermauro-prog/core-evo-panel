@@ -1,18 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Server, CheckCircle } from 'lucide-react';
+import { Save, Server, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import { evolutionAPI } from '@/lib/api';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import * as evolutionAPI from '@/api/evolution';
 import { toast } from 'sonner';
 
 export default function Settings() {
-  const [apiUrl, setApiUrl] = useState(evolutionAPI.getApiUrl());
+  const [apiUrl, setApiUrl] = useState('');
   const [saved, setSaved] = useState(false);
+  const [hasEnvVar, setHasEnvVar] = useState(false);
+
+  useEffect(() => {
+    // Verificar se há variável de ambiente configurada
+    const envUrl = import.meta.env.VITE_EVOLUTION_API_URL;
+    if (envUrl) {
+      setHasEnvVar(true);
+      setApiUrl(envUrl);
+    } else {
+      const storedUrl = localStorage.getItem('evolution_api_url') || 'http://localhost:8080';
+      setApiUrl(storedUrl);
+    }
+  }, []);
 
   const handleSave = () => {
+    if (!apiUrl.trim()) {
+      toast.error('Por favor, informe a URL da API');
+      return;
+    }
+    
     evolutionAPI.setApiUrl(apiUrl);
     setSaved(true);
     toast.success('Configurações salvas com sucesso!');
@@ -42,6 +61,16 @@ export default function Settings() {
             </div>
           </div>
 
+          {hasEnvVar && (
+            <Alert className="mb-4 border-primary/50 bg-primary/10">
+              <AlertCircle className="h-4 w-4 text-primary" />
+              <AlertDescription className="text-sm text-foreground">
+                A URL da API está configurada via variável de ambiente (<code className="text-xs bg-muted px-1 py-0.5 rounded">VITE_EVOLUTION_API_URL</code>). 
+                Esta configuração tem prioridade sobre o valor abaixo.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="api-url" className="text-foreground">
@@ -54,6 +83,7 @@ export default function Settings() {
                 value={apiUrl}
                 onChange={(e) => setApiUrl(e.target.value)}
                 className="bg-input border-border focus:border-primary"
+                disabled={hasEnvVar}
               />
               <p className="text-xs text-muted-foreground">
                 Digite a URL completa onde a Evolution API está rodando (ex: http://seu-servidor.com:8080)
@@ -63,7 +93,7 @@ export default function Settings() {
             <Button
               onClick={handleSave}
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow-green"
-              disabled={saved}
+              disabled={saved || hasEnvVar}
             >
               {saved ? (
                 <>
