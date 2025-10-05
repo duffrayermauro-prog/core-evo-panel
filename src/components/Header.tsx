@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Settings, LayoutDashboard } from 'lucide-react';
+import { Settings, LayoutDashboard, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const Header = () => {
@@ -29,6 +29,16 @@ export const Header = () => {
               Dashboard
             </Button>
           </Link>
+          <Link to="/documentation">
+            <Button
+              variant={location.pathname === '/documentation' ? 'default' : 'ghost'}
+              size="sm"
+              className={location.pathname === '/documentation' ? 'bg-accent text-accent-foreground' : ''}
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Docs</span>
+            </Button>
+          </Link>
           <Link to="/settings">
             <Button
               variant={location.pathname === '/settings' ? 'default' : 'ghost'}
@@ -36,7 +46,7 @@ export const Header = () => {
               className={location.pathname === '/settings' ? 'bg-secondary text-secondary-foreground' : ''}
             >
               <Settings className="w-4 h-4 mr-2" />
-              Configurações
+              <span className="hidden sm:inline">Configurações</span>
             </Button>
           </Link>
         </nav>
